@@ -2,13 +2,12 @@
 Terraform으로 EKS만 간단히 만들기
 
 ## 사용한 모듈
-aws 공식 EKS 모듈 사용
 
-https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest
+aws 공식 EKS 모듈 사용
+- https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest
 
 aws 공식 vpc 모듈 사용
-
-https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
+- https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
 
 
 ## 구성된 사항
@@ -30,3 +29,7 @@ https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
   + 노드 그룹
     - t3.large 타입
     - 초기 2개의 노드 
+
+### Output
+- 완성된 kubeconfig 업데이트 awscli 명령어 
+
