@@ -29,7 +29,5 @@ aws 공식 vpc 모듈 사용
   + 노드 그룹
     - t3.large 타입
     - 초기 2개의 노드 
-
-### Output
+## Output
 - 완성된 kubeconfig 업데이트 awscli 명령어 
-
