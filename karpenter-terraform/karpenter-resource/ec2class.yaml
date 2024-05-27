@@ -4,11 +4,14 @@ metadata:
   name: default
 spec:
   amiFamily: AL2 # Amazon Linux 2
-  role: "KarpenterNodeRole-bsd-cluster-karpenter" # replace with your cluster name
+  # 노드그룹이 사용할 인스턴스 프로파일이름(즉 EC2 IAM) Terraform Output 확인하세요!
+  role: "Karpenter-eks-sample-karpenter-20240527055928698900000004" 
   # instanceProfile: "KarpenterNodeInstanceProfile-bsd-cluster-karpenter"
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery: "bsd-cluster-karpenter"
+        karpenter.sh/discovery: "eks-sample-karpenter"
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery: "bsd-cluster-karpenter"
+        karpenter.sh/discovery: "eks-sample-karpenter"
+  tags:
+    karpenter.sh/discovery: "eks-sample-karpenter"

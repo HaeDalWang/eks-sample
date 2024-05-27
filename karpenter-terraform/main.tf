@@ -35,10 +35,10 @@ data "aws_ecrpublic_authorization_token" "token" {
 }
 
 locals {
-  name = "bsd-cluster-karpenter"
+  name = "eks-sample-karpenter"
 
   # Route53 root Domain
-  cluster_root_domain = "seungdobae.com"
+  cluster_root_domain = var.route53_domain
   region              = "ap-northeast-2"
 
   tags = {

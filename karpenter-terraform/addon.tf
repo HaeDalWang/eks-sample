@@ -17,17 +17,6 @@ module "eks_blueprints_addons" {
 
   eks_addons = {
     aws-ebs-csi-driver = {
-      # https://github.com/aws-ia/terraform-aws-eks-blueprints/blob/main/examples/stateful/main.tf
-      # service_account_role_arn = module.ebs_csi_driver_irsa.iam_role_arn
-      most_recent = true
-    }
-    coredns = {
-      most_recent = true
-    }
-    vpc-cni = {
-      most_recent = true
-    }
-    kube-proxy = {
       most_recent = true
     }
   }
@@ -36,21 +25,31 @@ module "eks_blueprints_addons" {
   enable_aws_load_balancer_controller = true
   aws_load_balancer_controller = {
     set = [{
+      # https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/aws-load-balancer-controller.html
+      # 기본 service 리소스 생성 시 ELB 타입을 결정
+      # false의 경우 Claiic LB 생성, true면 NLB 생성
       name  = "enableServiceMutatorWebhook"
       value = "false"
     }]
   }
-  enable_metrics_server               = true
+  enable_metrics_server = true
 
   ## 클러스터 오토 스케일러 대신 Karpenter 사용
   # enable_cluster_autoscaler           = true
-  enable_karpenter                           = true
-  karpenter_enable_instance_profile_creation = true
-  # ECR login required
-  karpenter = {
-    repository_username = data.aws_ecrpublic_authorization_token.token.user_name
-    repository_password = data.aws_ecrpublic_authorization_token.token.password
-  }
+  # enable_karpenter                           = true
+  # # 카펜터가 spot을 종료가능
+  # karpenter_enable_spot_termination          = true
+  # # 카펜터가 인스턴스 IAM생성 가능
+  # karpenter_enable_instance_profile_creation = true
+  # # 확인 필요
+  # karpenter_node = {
+  #   iam_role_use_name_prefix = false
+  # }
+  # 카펜터 container 이미지가 버지니아에 있음
+  # karpenter = {
+  #   repository_username = data.aws_ecrpublic_authorization_token.token.user_name
+  #   repository_password = data.aws_ecrpublic_authorization_token.token.password
+  # }
 
   enable_external_dns = true
   external_dns = {
@@ -68,6 +67,86 @@ module "eks_blueprints_addons" {
 
   tags = local.tags
 }
+# Route53 에서 사용할 도메인 불러오기
 data "aws_route53_zone" "environmentDomain" {
-  name = "${local.cluster_root_domain}"
+  name = local.cluster_root_domain
+}
+
+# aws-auth configmap에 karpenter가 노드를 관리할 권한 추가
+# module "aws-auth" {
+#   source  = "terraform-aws-modules/eks/aws//modules/aws-auth"
+#   version = "~> 20.0"
+
+#   manage_aws_auth_configmap = true
+
+#   aws_auth_roles = [
+#     {
+#       rolearn  = module.eks_blueprints_addons.karpenter.node_iam_role_arn
+#       username = "system:node:{{EC2PrivateDNSName}}"
+#       groups   = ["system:bootstrappers","system:nodes"]
+#     },
+#   ]
+# }
+
+################################################################################
+# Karpenter
+################################################################################
+
+module "karpenter" {
+  source = "terraform-aws-modules/eks/aws//modules/karpenter"
+  version = "~> 20.11.1"
+
+  cluster_name = module.eks.cluster_name
+
+  enable_pod_identity             = true
+  create_pod_identity_association = true
+
+  # Used to attach additional IAM policies to the Karpenter node IAM role
+  node_iam_role_additional_policies = {
+    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  }
+
+  tags = local.tags
+}
+
+module "karpenter_disabled" {
+  source = "terraform-aws-modules/eks/aws//modules/karpenter"
+  version = "~> 20.11.1"
+
+  create = false
+}
+
+################################################################################
+# Karpenter Helm chart & manifests
+# Not required; just to demonstrate functionality of the sub-module
+################################################################################
+
+resource "helm_release" "karpenter" {
+  namespace           = "kube-system"
+  name                = "karpenter"
+  repository          = "oci://public.ecr.aws/karpenter"
+  repository_username = data.aws_ecrpublic_authorization_token.token.user_name
+  repository_password = data.aws_ecrpublic_authorization_token.token.password
+  chart               = "karpenter"
+  version             = "0.36.1"
+  wait                = false
+
+  values = [
+    <<-EOT
+    settings:
+      clusterName: ${module.eks.cluster_name}
+      clusterEndpoint: ${module.eks.cluster_endpoint}
+      interruptionQueue: ${module.karpenter.queue_name}
+    EOT
+  ]
+}
+
+## EC2 Spot 인스턴스를 프로비저닝하기 위해서 Service-linked-Role 에 대한 권한이 필요하며
+## 관련 공식 문서
+## https://docs.aws.amazon.com/ko_kr/IAM/latest/UserGuide/id_roles_terms-and-concepts.html
+## Issue 관련 링크
+## https://github.com/aws/karpenter-provider-aws/issues/5436
+resource "aws_iam_service_linked_role" "spot" {
+  aws_service_name = "spot.amazonaws.com"
 }

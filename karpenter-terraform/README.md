@@ -5,14 +5,14 @@
 ## 구성환경
 - 예시 클러스터 1개
 - helm Chart
-    + ExternalDNS 
+    + ExternalDNS
 - 예시 VPC 및 3개의 서브넷(3 az)
     + karpenter 프로비저너 설정 구성시 배포되는 az의 범위 또한 3개
 
 ## 눈여겨볼 작업 사항
 1. eks.tf의 vpc모듈
-서브넷 별도의 태그
-- karpenter가 프로비저닝시 해당 태그로 구분
+프라이빗 서브넷 별도의 태그
+- karpenter가 프로비저닝시 해당 태그로 구분하여 프로비저닝
 
 2. eks.tf eks모듈
 tag 항목의 merge

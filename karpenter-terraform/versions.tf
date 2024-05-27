@@ -14,25 +14,13 @@ terraform {
       source  = "hashicorp/helm"
       version = ">= 2.10.1"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = ">= 3.3.2"
-    }
-    time = {
-      source  = "hashicorp/time"
-      version = ">= 0.9.1"
-    }
-    bcrypt = {
-      source  = "viktorradnai/bcrypt"
-      version = ">= 0.1.2"
-    }
-    htpasswd = {
-      source  = "loafoe/htpasswd"
-      version = "~> 1.0.4"
-    }
     kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.14.0"
+      source  = "alekc/kubectl"
+      version = ">= 2.0.2"
+    }
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0.1"
     }
   }
 }
