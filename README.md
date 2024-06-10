@@ -13,6 +13,7 @@ EKS + VPC의 경우 aws module을 이용합니다
 링크
 - EKS: https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest
 - VPC: https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
+
 기본적인 애드온들은 EKS Blueprint addons를 이용합니다
 - addons: https://github.com/aws-ia/terraform-aws-eks-blueprints-addons
 

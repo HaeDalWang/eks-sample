@@ -34,8 +34,8 @@ module "eks_blueprints_addons" {
   }
   enable_metrics_server = true
 
-  ## 클러스터 오토 스케일러 대신 Karpenter 사용
-  # enable_cluster_autoscaler           = true
+  # 클러스터 오토 스케일러 대신 Karpenter 사용
+  enable_cluster_autoscaler           = true
   # enable_karpenter                           = true
   # # 카펜터가 spot을 종료가능
   # karpenter_enable_spot_termination          = true
