@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-dev
+  namespace: default
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  sources:
+  - repoURL: '863422182520.dkr.ecr.ap-northeast-2.amazonaws.com'
+    chart: nginx
+    targetRevision: 0.1.0
+    helm:
+      valueFiles:
+      - $values/values-dev.yaml
+  - repoURL: https://github.com/HaeDalWang/helm-nginx.git
+    targetRevision: 0.1.0
+    ref: values

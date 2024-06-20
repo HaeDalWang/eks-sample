@@ -1,0 +1,15 @@
+## 식별자 Route53에 TXT 레코드를 생성할떄 붙는다
+txtOwnerId: ${txtOwnerId}
+## 주기적으로 Route53 테이블과 동기화
+## upsert-only 옵션이 따로 있는게 이것은 ExternalDNS가 레코드를 삭제하지못하고 동기화 X 생성만함
+policy: 'sync'
+## route53 사용
+provider: aws
+logLevel: 'info'
+## zone 형태 넘김
+extraArgs: 
+  - --aws-zone-type=public
+## 해당 리소스 사용시 트리거
+sources:
+  - service
+  - ingress
