@@ -27,3 +27,11 @@ karpenter-terraform
 - addons: ALB 컨트롤러, metrics 서버, EBS csi driver, ExternalDNS, Karpenter
 - 프로비저닝 예제를 위한 nodepool, nodeclass 리소스 파일
 
+argocd_multiple-source
+- ArgoCD 배포 시 chart와 values을 별도로 지정하는 multisource 방식 테스트
+- ECR에 helm chart을 업로드
+- Argocd SEcret에 ECR Token에 대한 자동 갱신을 위한 Argocd-ecr-updater 사용
+
+version-upgrade-refine
+- module 사용하여 버전 업그레이드 시 확인용
+- module.eks 에 버전만 수정하여도 > eks, addon, nodegroup 전부 한번에 업그레이드, 버전 맞춤
